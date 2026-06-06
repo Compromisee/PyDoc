@@ -1,0 +1,45 @@
+name: Build Windows executable
+
+# Builds dist/PyDoc.exe with PyInstaller using PyDoc.spec.
+# Runs on every tag like v1.0.0 (attaching the exe to a GitHub Release) and
+# can also be triggered manually.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pywebview pystray pillow keyboard
+
+      - name: Build with PyInstaller
+        run: pyinstaller PyDoc.spec --noconfirm
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PyDoc-windows
+          path: dist/PyDoc.exe
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/PyDoc.exe
