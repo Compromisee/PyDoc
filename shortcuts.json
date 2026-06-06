@@ -1,0 +1,20 @@
+{
+  "_comment": "Base definition for custom shortcuts. Extra metadata (pinned/group/alias/hotkey/usage) lives in store.json and is editable from the in-app Settings window.",
+  "shortcuts": [
+    {
+      "name": "Google",
+      "target": "https://www.google.com",
+      "image": "ms:language"
+    },
+    {
+      "name": "Calculator",
+      "target": "calc",
+      "image": "ms:calculate"
+    },
+    {
+      "name": "Open Shortcuts Folder",
+      "target": "@open_shortcut_folder",
+      "image": "ms:folder"
+    }
+  ]
+}

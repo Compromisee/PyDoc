@@ -1,0 +1,388 @@
+/* PyDoc · Windows 11 styling (Material Symbols, no emoji, solid dark bg) */
+:root {
+  --accent: #4cc2ff;
+  --bg: #202020;          /* window/card background (matches pywebview bg) */
+  --bg2: #2b2b2b;
+  --bg3: #383838;
+  --border: #393939;
+  --text: #ffffff;
+  --subtext: #a0a0a0;
+  --row-hover: #2f2f2f;
+  --row-sel: #333333;
+  --radius: 12px;
+  --shadow: 0 14px 40px rgba(0,0,0,.45);
+  --win-edge: rgba(255,255,255,.08);   /* subtle Windows 11 window border */
+  --win-card: #2d2d2d;                  /* control fill */
+}
+html[data-theme="light"] {
+  --bg: #f3f3f3; --bg2: #fbfbfb; --bg3: #e6e6e6; --border: #e1e1e1;
+  --text: #1b1b1b; --subtext: #5f5f5f; --row-hover: #ececec; --row-sel: #e4eef7;
+  --shadow: 0 14px 40px rgba(0,0,0,.18);
+  --win-edge: rgba(0,0,0,.10); --win-card: #ffffff;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100%; width: 100%;
+  background: var(--bg);
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+}
+.msr { font-size: 20px; line-height: 1; vertical-align: middle; }
+
+/* Suppress the native Edge/WebView2 password reveal + clear buttons globally
+   (we provide our own show/hide eye). Avoids the duplicate-button bug. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input::-ms-reveal,
+input::-ms-clear { display: none !important; }
+
+/* ---------- Launcher card fills the window (Windows 11 Mica look) ---------- */
+.ql-card {
+  display: flex; flex-direction: column;
+  height: 100vh; width: 100vw;
+  /* layered Mica-style background: subtle accent wash over the base */
+  background:
+    radial-gradient(140% 120% at 0% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 55%),
+    radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--accent) 4%, transparent), transparent 50%),
+    var(--bg);
+  border: 1px solid var(--win-edge);
+  border-radius: 10px;            /* Windows 11 rounded window corners */
+  overflow: hidden;
+  animation: pop .16s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes pop { from { opacity: 0; transform: scale(.985) translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Search bar ---------- */
+.ql-searchbar {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 12px 8px; padding: 0 14px; height: 52px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.ql-searchbar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ql-search-ico { font-size: 22px; color: var(--subtext); }
+#search {
+  flex: 1; height: 100%; border: 0; outline: 0; background: transparent;
+  color: var(--text); font-size: 17px; font-family: inherit;
+}
+#search::placeholder { color: var(--subtext); }
+.ql-iconbtn {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--subtext);
+  cursor: pointer; transition: background .12s, color .12s; flex: 0 0 36px;
+}
+.ql-iconbtn .msr { font-size: 20px; }
+.ql-iconbtn:hover { background: var(--bg3); color: var(--text); }
+
+/* ---------- Group chips ---------- */
+.ql-groups { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 12px 6px; }
+.ql-groups:empty { display: none; }
+.ql-chip {
+  font-size: 12px; padding: 4px 12px; border-radius: 999px; cursor: pointer;
+  background: var(--bg2); border: 1px solid var(--border); color: var(--subtext);
+  transition: all .12s;
+}
+.ql-chip:hover { color: var(--text); border-color: var(--accent); }
+.ql-chip.active { background: var(--accent); color: #00121f; border-color: var(--accent); font-weight: 600; }
+
+/* ---------- Results ---------- */
+.ql-results { flex: 1; overflow-y: auto; padding: 2px 12px 8px; }
+.ql-results::-webkit-scrollbar { width: 8px; }
+.ql-results::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+.ql-row {
+  display: flex; align-items: center; gap: 12px; padding: 8px 12px; margin: 1px 0;
+  border-radius: 7px; cursor: pointer; position: relative;
+  border: 1px solid transparent;
+  transition: background .12s ease, border-color .12s ease;
+}
+.ql-row:hover { background: var(--row-hover); }
+.ql-row.sel { background: var(--row-sel); border-color: var(--win-edge); }
+.ql-row.sel::before {
+  content: ""; position: absolute; left: -4px; top: 50%; transform: translateY(-50%);
+  height: 18px; width: 3px; border-radius: 3px; background: var(--accent);
+  transition: height .15s ease;
+}
+.ql-row .ico {
+  width: 38px; height: 38px; flex: 0 0 38px; border-radius: 9px;
+  display: grid; place-items: center; background: var(--bg3); color: var(--accent);
+}
+.ql-row .ico .msr { font-size: 22px; color: var(--accent); }
+.ql-row .ico img { width: 22px; height: 22px; object-fit: contain; }
+.ql-row.child .ico { background: transparent; opacity: .85; }
+.ql-row .body { flex: 1; min-width: 0; }
+.ql-row .name { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.ql-row .sub { font-size: 11px; color: var(--subtext); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ql-badge { font-size: 9px; padding: 1px 6px; border-radius: 6px; background: var(--bg3); color: var(--subtext); }
+.ql-numhint { font-size: 10px; color: var(--subtext); font-family: ui-monospace, monospace;
+  border: 1px solid var(--win-edge); border-radius: 5px; padding: 1px 5px; margin-right: 6px; opacity: 0; transition: opacity .12s; }
+.ql-row:hover .ql-numhint, .ql-row.sel .ql-numhint { opacity: .7; }
+.ql-hl { color: var(--accent); font-weight: 700; }
+.ql-row .pinbtn { opacity: 0; color: var(--subtext); padding: 6px; border:0; background:transparent; cursor:pointer; }
+.ql-row .pinbtn .msr { font-size: 18px; }
+.ql-row:hover .pinbtn, .ql-row.sel .pinbtn { opacity: 1; }
+.ql-row .pinbtn.on { opacity: 1; color: var(--accent); }
+.ql-empty { text-align: center; color: var(--subtext); padding: 28px; font-size: 14px; }
+
+/* ---------- Footer ---------- */
+.ql-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 16px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--subtext);
+}
+.ql-hints b { color: var(--text); font-weight: 600; }
+.ql-theme-name { font-weight: 600; }
+
+/* ============ Dialogs ============ */
+.ql-overlay { position: fixed; inset: 0; display: none; place-items: center; background: rgba(0,0,0,.5); z-index: 50; }
+/* icon picker must sit ABOVE the settings dialog that opened it */
+#icon-overlay { z-index: 70; }
+#add-overlay { z-index: 60; }
+.ql-overlay.show { display: grid; animation: fade .12s ease; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.ql-dialog {
+  width: min(720px, 94vw); max-height: 92vh; display: flex; flex-direction: column;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden; animation: pop .14s cubic-bezier(.2,.9,.3,1.1);
+}
+.ql-dialog-sm { width: min(540px, 94vw); }
+.ql-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+.ql-dialog-head h2 { margin: 0; font-size: 20px; font-weight: 600; }
+.ql-tabs { display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+.ql-tab { border: 0; background: transparent; color: var(--subtext); cursor: pointer; padding: 10px 14px; font-size: 13px; font-family: inherit; position: relative; }
+.ql-tab:hover { color: var(--text); }
+.ql-tab.active { color: var(--text); }
+.ql-tab.active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 2px; background: var(--accent); border-radius: 2px; }
+.ql-dialog-body { padding: 18px; overflow-y: auto; overflow-x: hidden; }
+.ql-pane { display: none; }
+.ql-pane.active { display: block; }
+
+.ql-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.ql-field > span { font-size: 13px; }
+.ql-field small, .ql-note small { color: var(--subtext); font-size: 11px; }
+.ql-input, .ql-select {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 7px;
+  color: var(--text); padding: 9px 11px; font-size: 13px; font-family: inherit; outline: none;
+  width: 100%; max-width: 100%;
+}
+.ql-input:focus, .ql-select:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ql-input.ql-small { width: 90px; }
+.ql-check { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; font-size: 13px; cursor: pointer; }
+.ql-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+.ql-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.ql-field.grow, .grow { flex: 1; }
+
+/* shortcut editor */
+.ql-editor { display: grid; grid-template-columns: 1fr 1.1fr; gap: 16px; }
+@media (max-width: 620px) { .ql-editor { grid-template-columns: 1fr; } }
+.ql-clist { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 8px; }
+.ql-citem { display: flex; align-items: center; gap: 9px; padding: 9px 11px; cursor: pointer; border-bottom: 1px solid var(--border); font-size: 13px; }
+.ql-citem:last-child { border-bottom: 0; }
+.ql-citem:hover { background: var(--row-hover); }
+.ql-citem.sel { background: var(--row-sel); }
+.ql-citem .ci-ico .msr { font-size: 18px; color: var(--accent); }
+.ql-citem .ci-ico img { width: 18px; height: 18px; object-fit: contain; vertical-align: middle; }
+.ql-citem .ci-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ql-citem .ci-tag { font-size: 9px; color: var(--subtext); background: var(--bg3); padding: 1px 6px; border-radius: 5px; }
+
+/* buttons */
+.ql-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); padding: 8px 14px; border-radius: 7px; font-size: 13px; font-family: inherit; cursor: pointer; transition: filter .12s; }
+.ql-btn .msr { font-size: 18px; }
+.ql-btn:hover { filter: brightness(1.15); }
+.ql-btn.accent { background: var(--accent); border-color: var(--accent); color: #00121f; font-weight: 600; }
+.ql-btn.danger { background: #c4314b; border-color: #c4314b; color: #fff; }
+.ql-btn.ghost { background: transparent; }
+.ql-btn.full { width: 100%; justify-content: center; margin-bottom: 8px; }
+.ql-note { color: var(--subtext); font-size: 12px; line-height: 1.5; }
+.ql-note code { background: var(--bg2); padding: 1px 5px; border-radius: 4px; }
+
+/* themes grid */
+.ql-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ql-theme-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; background: var(--bg2); transition: border-color .12s, transform .08s; }
+.ql-theme-card:hover { transform: translateY(-2px); }
+.ql-theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ql-swatch { height: 36px; border-radius: 7px; margin-bottom: 9px; }
+.ql-theme-card .tc-name { font-size: 13px; }
+.ql-theme-card .tc-mode { font-size: 11px; color: var(--subtext); }
+
+.ql-dialog-foot { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--border); }
+.ql-status { font-size: 12px; color: var(--accent); }
+
+/* icon picker */
+.ql-iconrow { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.ql-iconpreview { width: 56px; height: 56px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg3); display: grid; place-items: center; cursor: pointer; color: var(--accent); flex: 0 0 56px; transition: border-color .12s; }
+.ql-iconpreview:hover { border-color: var(--accent); }
+.ql-iconpreview .msr { font-size: 28px; color: var(--accent); }
+.ql-iconpreview img { width: 30px; height: 30px; object-fit: contain; }
+.ql-iconrow-meta { display: flex; flex-direction: column; }
+.ql-iconrow-meta span { font-size: 13px; }
+.ql-iconrow-meta small { font-size: 11px; color: var(--subtext); }
+.ql-icongrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 8px; margin-top: 12px; max-height: 320px; overflow-y: auto; }
+.ql-iconcell { height: 48px; border: 1px solid var(--border); border-radius: 9px; cursor: pointer; display: grid; place-items: center; background: var(--bg2); transition: border-color .1s, transform .06s; }
+.ql-iconcell:hover { border-color: var(--accent); transform: translateY(-1px); }
+.ql-iconcell .msr { font-size: 24px; color: var(--accent); }
+.ql-iconcell img { width: 26px; height: 26px; object-fit: contain; }
+
+/* keybind recorder */
+.ql-keyrow { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.ql-keyrow-label { flex: 1; }
+.ql-keyrow-label b { font-size: 13px; }
+.ql-keyrow-label small { display: block; font-size: 11px; color: var(--subtext); }
+.ql-keyinput { width: 180px; text-align: center; font-family: ui-monospace, monospace; }
+.ql-btn.recording { background: var(--accent); border-color: var(--accent); color: #00121f; }
+
+/* drag-and-drop overlay */
+.ql-dropzone { position: fixed; inset: 0; display: none; place-items: center; z-index: 80; background: color-mix(in srgb, var(--bg) 82%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.ql-dropzone.show { display: grid; animation: fade .12s ease; }
+.ql-dropzone-inner { border: 2px dashed var(--accent); border-radius: 16px; padding: 36px 56px; text-align: center; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.ql-drop-ico { font-size: 48px; color: var(--accent); }
+.ql-drop-title { font-size: 20px; font-weight: 600; margin-top: 8px; }
+.ql-drop-sub { font-size: 13px; color: var(--subtext); margin-top: 4px; }
+
+/* confirm */
+.ql-confirm { position: fixed; inset: 0; display: none; place-items: center; z-index: 90; background: rgba(0,0,0,.5); }
+.ql-confirm.show { display: grid; animation: fade .12s ease; }
+.ql-confirm-box { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; width: min(380px, 90vw); box-shadow: var(--shadow); }
+.ql-confirm-msg { font-size: 14px; margin-bottom: 16px; }
+.ql-confirm-btns { display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ===== Lock screen — gradient-header card with 6-digit OTP entry ===== */
+.ql-lock { position: fixed; inset: 0; display: none; place-items: center; z-index: 95;
+  background: var(--bg); }
+.ql-lock.show { display: grid; animation: fade .15s ease; }
+.ql-lock-card {
+  width: min(340px, 90vw); text-align: center; overflow: hidden;
+  background: var(--bg2);
+  border: 1px solid var(--win-edge); border-radius: 16px;
+  box-shadow: var(--shadow); animation: pop .18s cubic-bezier(.2,.9,.3,1.1);
+}
+/* gradient header (accent → lighter accent), like the reference card */
+.ql-lock-head {
+  padding: 26px 20px 22px;
+  background: linear-gradient(135deg, var(--accent),
+              color-mix(in srgb, var(--accent) 55%, #ffffff));
+  color: #06222e;
+}
+.ql-lock-badge {
+  width: 56px; height: 56px; margin: 0 auto 10px; border-radius: 16px;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.22);
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+.ql-lock-badge .msr { font-size: 28px; color: #06222e; }
+.ql-lock-title { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: .3px; color: #06222e; }
+.ql-lock-body { padding: 22px 24px 24px; }
+.ql-lock-sub { margin: 0 0 18px; font-size: 13px; color: var(--subtext); }
+
+/* OTP: 6 fixed digit boxes; hidden real input captures keystrokes */
+.ql-otp { position: relative; outline: 0; }
+.ql-otp input {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: 0; border: 0; cursor: text; z-index: 2;
+}
+.ql-otp-boxes { display: flex; justify-content: center; gap: 8px; }
+.ql-otp-box {
+  width: 40px; height: 50px; border-radius: 10px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  display: grid; place-items: center; font-size: 22px; font-weight: 600; color: var(--text);
+  transition: border-color .12s, transform .08s, box-shadow .12s;
+}
+.ql-otp-box.filled { border-color: color-mix(in srgb,var(--accent) 60%, var(--border)); }
+.ql-otp-box.pop { animation: pinpop .14s ease; }
+@keyframes pinpop { from { transform: scale(.82); } to { transform: scale(1); } }
+.ql-otp.focused .ql-otp-box.caret { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb,var(--accent) 35%, transparent); }
+.ql-otp.focused .ql-otp-box.caret::after { content:""; width:2px; height:22px; background:var(--accent); animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.ql-lock-row { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; min-height: 22px; }
+.ql-otp-toggle { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent;
+  color: var(--subtext); cursor: pointer; font-size: 12px; padding: 3px 4px; border-radius: 6px; }
+.ql-otp-toggle .msr { font-size: 16px; }
+.ql-otp-toggle:hover { color: var(--text); }
+.ql-lock-caps { display: flex; align-items: center; gap: 5px; color: #ffcf6b; font-size: 12px; }
+.ql-lock-caps .msr { font-size: 16px; }
+.ql-lock-err { color: #ff7a7a; font-size: 13px; min-height: 18px; margin: 8px 0 12px; }
+.ql-otp-btn { margin-top: 2px; justify-content: center; height: 44px; font-size: 15px; }
+.ql-lock-card.shake { animation: shake .4s cubic-bezier(.36,.07,.19,.97); }
+@keyframes shake {
+  10%,90% { transform: translateX(-2px); }
+  20%,80% { transform: translateX(4px); }
+  30%,50%,70% { transform: translateX(-7px); }
+  40%,60% { transform: translateX(7px); }
+}
+.ql-lock-link { display: block; margin-top: 14px; font-size: 12px; color: var(--accent); cursor: pointer; background: none; border: 0; width: 100%; }
+.ql-lock-link:hover { text-decoration: underline; }
+.ql-lock-profile { margin-top: 12px; font-size: 12px; color: var(--subtext); min-height: 14px; }
+.ql-lock-profile b { color: var(--accent); }
+input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear { display: none !important; }
+.ql-sec-on { display: flex; align-items: center; gap: 8px; color: var(--accent2, #34d399); margin-bottom: 14px; font-size: 14px; }
+.ql-sec-divide { border: 0; border-top: 1px solid var(--border); margin: 20px 0 14px; }
+.ql-sec-head { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.ql-sec-head .msr { font-size: 18px; color: var(--accent); }
+.ql-sec-head small { font-weight: 400; color: var(--subtext); }
+.ql-prof-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.ql-prof-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+.ql-prof-item .msr { font-size: 18px; color: var(--accent); }
+.ql-prof-item .pf-name { flex: 1; }
+.ql-prof-item .pf-del { border: 0; background: transparent; color: var(--subtext); cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; }
+.ql-prof-item .pf-del:hover { background: #c4314b; color: #fff; }
+.ql-prof-item .pf-del .msr { font-size: 16px; color: inherit; }
+.ql-sec-on .msr { font-size: 20px; }
+
+/* ===================== Command runner ===================== */
+.ql-runner { display: none; flex-direction: column; flex: 1; min-height: 0; padding: 0 12px 10px; }
+.ql-runner.show { display: flex; animation: fade .12s ease; }
+.ql-run-input {
+  display: flex; align-items: center; gap: 8px; padding: 0 6px 0 12px; height: 48px;
+  background: #0d0d0f; border: 1px solid var(--border); border-radius: 10px;
+}
+html[data-theme="light"] .ql-run-input { background: #0f1115; }
+.ql-run-input:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ql-run-chevron { color: var(--accent); font-size: 20px; }
+#run-cmd { flex: 1; height: 100%; border: 0; outline: 0; background: transparent;
+  color: #e6e6e6; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 14px; }
+.ql-run-suggest { min-height: 20px; padding: 6px 4px 2px; font-size: 12px; color: var(--subtext); }
+.ql-run-suggest .fix { color: var(--accent); cursor: pointer; font-weight: 600; text-decoration: underline; }
+.ql-run-output {
+  margin: 6px 0; padding: 12px 14px; flex: 1; min-height: 90px; max-height: 230px; overflow: auto;
+  background: #0d0d0f; border: 1px solid var(--border); border-radius: 10px;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; line-height: 1.5;
+  white-space: pre-wrap; word-break: break-word; color: #cfd2d6;
+}
+.ql-run-output:empty { display: none; }
+/* syntax/ANSI-ish coloring */
+.ql-run-output .ln-cmd { color: var(--accent); font-weight: 600; }
+.ql-run-output .ln-err { color: #ff7a7a; }
+.ql-run-output .ln-warn { color: #ffcf6b; }
+.ql-run-output .ln-ok { color: #6bd98f; }
+.ql-run-output .ln-path { color: #79c0ff; }
+.ql-run-output .ln-num { color: #d2a8ff; }
+.ql-run-output .ln-str { color: #a5d6a3; }
+.ql-run-output .ln-flag { color: #ffa657; }
+.ql-run-output .ln-muted { color: var(--subtext); }
+.ql-run-histbar { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 6px; }
+.ql-run-histtitle { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--subtext); }
+.ql-run-histtitle .msr { font-size: 16px; }
+.ql-run-clear { padding: 4px 10px; font-size: 12px; }
+.ql-run-history { overflow-y: auto; max-height: 150px; }
+.ql-run-hitem {
+  display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; cursor: pointer;
+  font-family: ui-monospace, Consolas, monospace; font-size: 13px;
+}
+.ql-run-hitem:hover { background: var(--row-hover); }
+.ql-run-hitem.sel { background: var(--row-sel); }
+.ql-run-hitem .hi-cmd { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ql-run-hitem .msr { font-size: 17px; color: var(--subtext); }
+.ql-run-hitem .pin { color: var(--accent); }
+.ql-run-hitem .hi-act { opacity: 0; display: flex; gap: 2px; }
+.ql-run-hitem:hover .hi-act, .ql-run-hitem.sel .hi-act { opacity: 1; }
+.ql-run-hitem .hi-act button { border: 0; background: transparent; color: var(--subtext); cursor: pointer; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; }
+.ql-run-hitem .hi-act button:hover { background: var(--bg3); color: var(--text); }
+.ql-run-empty { text-align: center; color: var(--subtext); font-size: 12px; padding: 14px; }
+
+/* version badge in About */
+.ql-ver { font-size: 11px; font-weight: 600; color: var(--accent);
+  border: 1px solid color-mix(in srgb,var(--accent) 50%, transparent);
+  border-radius: 999px; padding: 1px 8px; margin-left: 6px; vertical-align: middle; }

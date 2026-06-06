@@ -1,0 +1,26 @@
+{
+  "Windows 11 Dark": {
+    "mode": "dark",
+    "primary": "#4cc2ff"
+  },
+  "Windows 11 Light": {
+    "mode": "light",
+    "primary": "#0067c0"
+  },
+  "Graphite": {
+    "mode": "dark",
+    "primary": "#9aa0a6"
+  },
+  "Nord": {
+    "mode": "dark",
+    "primary": "#88c0d0"
+  },
+  "Mint": {
+    "mode": "dark",
+    "primary": "#34d399"
+  },
+  "Sunset": {
+    "mode": "dark",
+    "primary": "#fb923c"
+  }
+}

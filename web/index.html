@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyDoc</title>
+  <!-- Google Material Symbols (bundled offline) -->
+  <link rel="stylesheet" href="vendor/material-symbols.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <div id="card" class="ql-card">
+
+    <!-- Search bar -->
+    <div class="ql-searchbar">
+      <span class="msr ql-search-ico">search</span>
+      <input id="search" type="text" autocomplete="off" spellcheck="false"
+             placeholder="Search apps, shortcuts, math, or the web…" />
+      <button id="btn-clear" class="ql-iconbtn" title="Clear" style="display:none">
+        <span class="msr">close</span>
+      </button>
+      <button id="btn-run" class="ql-iconbtn" title="Run command (Ctrl+Win+R)">
+        <span class="msr">terminal</span>
+      </button>
+      <button id="btn-add" class="ql-iconbtn" title="Add shortcut">
+        <span class="msr">add</span>
+      </button>
+      <button id="btn-settings" class="ql-iconbtn" title="Settings (Ctrl+,)">
+        <span class="msr">settings</span>
+      </button>
+    </div>
+
+    <div id="groups" class="ql-groups"></div>
+    <div id="results" class="ql-results"></div>
+
+    <!-- Command runner panel (hidden until opened) -->
+    <div id="runner" class="ql-runner">
+      <div class="ql-run-input">
+        <span class="msr ql-run-chevron">chevron_right</span>
+        <input id="run-cmd" type="text" autocomplete="off" spellcheck="false"
+               placeholder="Type a command and press Enter…" />
+        <button id="run-go" class="ql-iconbtn" title="Run (Enter)"><span class="msr">play_arrow</span></button>
+        <button id="run-close" class="ql-iconbtn" title="Back (Esc)"><span class="msr">close</span></button>
+      </div>
+      <div id="run-suggest" class="ql-run-suggest"></div>
+      <pre id="run-output" class="ql-run-output"></pre>
+      <div class="ql-run-histbar">
+        <span class="ql-run-histtitle"><span class="msr">history</span> History</span>
+        <button id="run-clear" class="ql-btn ghost ql-run-clear">Clear session</button>
+      </div>
+      <div id="run-history" class="ql-run-history"></div>
+    </div>
+
+    <div class="ql-footer">
+      <span class="ql-hints">
+        <b>↑↓</b> nav &nbsp; <b>⏎</b> open &nbsp; <b>Ctrl+P</b> pin &nbsp;
+        <b>Ctrl+D</b> remove &nbsp; <b>Tab</b> theme &nbsp; <b>Ctrl+,</b> settings &nbsp; <b>Esc</b> hide
+      </span>
+      <span id="theme-name" class="ql-theme-name"></span>
+    </div>
+  </div>
+
+  <!-- Lock screen -->
+  <div id="lockscreen" class="ql-lock">
+    <div class="ql-lock-card">
+      <div class="ql-lock-head">
+        <div class="ql-lock-badge"><span class="msr">lock</span></div>
+        <h2 class="ql-lock-title">PyDoc</h2>
+      </div>
+      <div class="ql-lock-body">
+        <p id="lock-sub" class="ql-lock-sub">Enter your 6-digit password to continue</p>
+        <!-- 6 OTP-style digit boxes (the real input is hidden, captures keys) -->
+        <div class="ql-otp" id="lock-pin" tabindex="0">
+          <input id="lock-pw" type="password" inputmode="numeric" autocomplete="off"
+                 maxlength="6" pattern="\d*" />
+          <div class="ql-otp-boxes" id="lock-boxes"></div>
+        </div>
+        <div class="ql-lock-row">
+          <button id="lock-reveal" class="ql-otp-toggle" tabindex="-1"><span class="msr">visibility</span> Show</button>
+          <div id="lock-caps" class="ql-lock-caps" style="display:none"><span class="msr">keyboard_capslock</span> Caps Lock</div>
+        </div>
+        <div id="lock-err" class="ql-lock-err"></div>
+        <button id="lock-unlock" class="ql-btn accent full ql-otp-btn"><span class="msr">lock_open</span> Unlock</button>
+        <button id="lock-forgot" class="ql-lock-link" style="display:none">Forgot? Use master password</button>
+        <div id="lock-profile" class="ql-lock-profile"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drag-and-drop overlay -->
+  <div id="dropzone" class="ql-dropzone">
+    <div class="ql-dropzone-inner">
+      <span class="msr ql-drop-ico">download</span>
+      <div class="ql-drop-title">Drop to add a shortcut</div>
+      <div class="ql-drop-sub">Files, folders, or links are added to your Shortcuts</div>
+    </div>
+  </div>
+
+  <!-- Add / Edit shortcut dialog -->
+  <div id="add-overlay" class="ql-overlay">
+    <div class="ql-dialog ql-dialog-sm">
+      <div class="ql-dialog-head">
+        <h2 id="add-title">Add shortcut</h2>
+        <button id="add-close" class="ql-iconbtn"><span class="msr">close</span></button>
+      </div>
+      <div class="ql-dialog-body">
+        <div class="ql-iconrow">
+          <button id="add-iconbtn" class="ql-iconpreview" title="Choose icon"></button>
+          <div class="ql-iconrow-meta">
+            <span>Icon</span>
+            <small>Click to pick a Material icon or your own image file.</small>
+          </div>
+        </div>
+        <label class="ql-field"><span>Name</span><input id="add-name" class="ql-input" /></label>
+        <label class="ql-field">
+          <span>Target (path, URL, or command)</span>
+          <div class="ql-row">
+            <input id="add-target" class="ql-input grow" placeholder="https://…  or  C:\\Program\\app.exe" />
+            <button id="add-browse" class="ql-btn ghost">Browse…</button>
+          </div>
+        </label>
+        <div class="ql-row">
+          <label class="ql-field grow"><span>Group (optional)</span><input id="add-group" class="ql-input" placeholder="Dev" /></label>
+          <label class="ql-field grow"><span>Alias (optional)</span><input id="add-alias" class="ql-input" placeholder="vsc" /></label>
+        </div>
+        <label class="ql-field"><span>Per-item hotkey (optional)</span>
+          <div class="ql-row">
+            <input id="add-hotkey" class="ql-input grow" placeholder="click Record…" readonly />
+            <button id="add-hotkey-rec" class="ql-btn">Record</button>
+            <button id="add-hotkey-clr" class="ql-btn ghost">Clear</button>
+          </div>
+        </label>
+      </div>
+      <div class="ql-dialog-foot">
+        <span id="add-status" class="ql-status"></span>
+        <span class="grow"></span>
+        <button id="add-cancel" class="ql-btn ghost">Cancel</button>
+        <button id="add-save" class="ql-btn accent">Save shortcut</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Icon picker dialog -->
+  <div id="icon-overlay" class="ql-overlay">
+    <div class="ql-dialog">
+      <div class="ql-dialog-head">
+        <h2>Choose an icon</h2>
+        <button id="icon-close" class="ql-iconbtn"><span class="msr">close</span></button>
+      </div>
+      <div class="ql-tabs">
+        <button class="ql-tab active" data-itab="default">Default</button>
+        <button class="ql-tab" data-itab="material">Material icons</button>
+        <button class="ql-tab" data-itab="file">My image file</button>
+      </div>
+      <div class="ql-dialog-body">
+        <section class="ql-pane active" data-ipane="default">
+          <p class="ql-note">Use the default icon (chosen automatically from the file type or URL).</p>
+          <button id="icon-use-default" class="ql-btn accent">Use default icon</button>
+        </section>
+        <section class="ql-pane" data-ipane="material">
+          <input id="icon-search" class="ql-input" placeholder="Search 4000+ Material icons (folder, game, music, rocket…)" />
+          <div id="icon-grid" class="ql-icongrid"></div>
+        </section>
+        <section class="ql-pane" data-ipane="file">
+          <p class="ql-note">Pick a <code>.ico</code>, <code>.svg</code>, <code>.png</code>… file — copied into the <code>Icons/</code> folder.</p>
+          <button id="icon-pick-file" class="ql-btn accent">Choose image file…</button>
+          <div id="icon-file-preview" class="ql-icongrid"></div>
+        </section>
+      </div>
+      <div class="ql-dialog-foot">
+        <span class="grow"></span>
+        <button id="icon-cancel" class="ql-btn ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings dialog -->
+  <div id="overlay" class="ql-overlay">
+    <div class="ql-dialog">
+      <div class="ql-dialog-head">
+        <h2>Settings</h2>
+        <button id="settings-close" class="ql-iconbtn"><span class="msr">close</span></button>
+      </div>
+      <div class="ql-tabs">
+        <button class="ql-tab active" data-tab="general">General</button>
+        <button class="ql-tab" data-tab="keys">Keybinds</button>
+        <button class="ql-tab" data-tab="shortcuts">Shortcuts</button>
+        <button class="ql-tab" data-tab="security">Security</button>
+        <button class="ql-tab" data-tab="themes">Themes</button>
+        <button class="ql-tab" data-tab="about">About</button>
+      </div>
+      <div class="ql-dialog-body">
+        <section class="ql-pane active" data-pane="general">
+          <label class="ql-field"><span>Theme</span><select id="set-theme" class="ql-select"></select></label>
+          <label class="ql-field"><span>Web search URL</span><input id="set-websearch" class="ql-input" placeholder="https://www.google.com/search?q={q}" /></label>
+          <label class="ql-field"><span>Max results shown</span><input id="set-maxresults" type="number" min="3" max="20" class="ql-input ql-small" /></label>
+          <label class="ql-check"><input type="checkbox" id="set-paths" /> <span>Show file paths under results</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-onlaunch" /> <span>Show launcher window on startup (otherwise stays in tray)</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-blur" /> <span>Hide window when it loses focus (click away to close)</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-calc" /> <span>Enable inline calculator</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-web" /> <span>Enable web-search / open-URL</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-shot" /> <span>Enable screenshots (type “screenshot”, hotkey, or tray)</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-shotcopy" /> <span>Also copy screenshots to the clipboard</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-run" /> <span>Enable command runner (type “cmd”, “&gt; …”, hotkey, or tray)</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-autocorrect" /> <span>Suggest fixes for mistyped commands</span></label>
+          <label class="ql-check"><input type="checkbox" id="set-autostart" /> <span>Run on Windows login (background tray app)</span> <small id="autostart-note"></small></label>
+        </section>
+
+        <section class="ql-pane" data-pane="keys">
+          <p class="ql-note">Click <b>Record</b>, then press your combo. Global hotkeys need the optional <code>keyboard</code> package.</p>
+          <div class="ql-keyrow">
+            <div class="ql-keyrow-label"><b>Open / toggle launcher</b><small>Default Win+Ctrl+N</small></div>
+            <input id="key-toggle" class="ql-input ql-keyinput" readonly placeholder="ctrl+windows+n" />
+            <button class="ql-btn key-rec" data-target="key-toggle">Record</button>
+          </div>
+          <div class="ql-keyrow">
+            <div class="ql-keyrow-label"><b>Add new shortcut</b><small>Default Win+Ctrl+A</small></div>
+            <input id="key-add" class="ql-input ql-keyinput" readonly placeholder="ctrl+windows+a" />
+            <button class="ql-btn key-rec" data-target="key-add">Record</button>
+          </div>
+          <div class="ql-keyrow">
+            <div class="ql-keyrow-label"><b>Screenshot (region snip)</b><small>Default Win+Ctrl+S</small></div>
+            <input id="key-shot" class="ql-input ql-keyinput" readonly placeholder="ctrl+windows+s" />
+            <button class="ql-btn key-rec" data-target="key-shot">Record</button>
+          </div>
+          <div class="ql-keyrow">
+            <div class="ql-keyrow-label"><b>Run command</b><small>Default Win+Ctrl+R</small></div>
+            <input id="key-run" class="ql-input ql-keyinput" readonly placeholder="ctrl+windows+r" />
+            <button class="ql-btn key-rec" data-target="key-run">Record</button>
+          </div>
+          <p class="ql-note" id="key-recording" style="display:none;color:var(--accent)">Recording… press your combination now (Esc to cancel).</p>
+        </section>
+
+        <section class="ql-pane" data-pane="shortcuts">
+          <div class="ql-editor">
+            <div class="ql-editor-list">
+              <div id="custom-list" class="ql-clist"></div>
+              <button id="new-shortcut" class="ql-btn accent full"><span class="msr">add</span> New shortcut</button>
+              <button id="open-folder" class="ql-btn ghost full"><span class="msr">folder_open</span> Open Shortcuts folder</button>
+            </div>
+            <div class="ql-editor-form">
+              <div class="ql-iconrow">
+                <button id="edit-iconbtn" class="ql-iconpreview" title="Choose icon"></button>
+                <div class="ql-iconrow-meta"><span>Icon</span><small>Click to change</small></div>
+              </div>
+              <label class="ql-field"><span>Name</span><input id="f-name" class="ql-input" /></label>
+              <label class="ql-field"><span>Target</span><input id="f-target" class="ql-input" /></label>
+              <div class="ql-row">
+                <label class="ql-field grow"><span>Group</span><input id="f-group" class="ql-input" placeholder="Dev" /></label>
+                <label class="ql-field grow"><span>Alias</span><input id="f-alias" class="ql-input" placeholder="vsc" /></label>
+              </div>
+              <label class="ql-field"><span>Per-item hotkey</span>
+                <div class="ql-row">
+                  <input id="f-hotkey" class="ql-input grow" placeholder="click Record…" readonly />
+                  <button id="f-hotkey-rec" class="ql-btn">Record</button>
+                  <button id="f-hotkey-clr" class="ql-btn ghost">Clear</button>
+                </div>
+              </label>
+              <div class="ql-row">
+                <button id="f-update" class="ql-btn accent"><span class="msr">check</span> Save</button>
+                <button id="f-delete" class="ql-btn danger"><span class="msr">delete</span> Delete</button>
+                <button id="f-clear" class="ql-btn ghost">Clear</button>
+              </div>
+              <p class="ql-note">Select an item to edit, or use “New shortcut”. Group / alias / hotkey / icon apply to any item; name &amp; target are editable for shortcuts you created.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="ql-pane" data-pane="security">
+          <p class="ql-note">Require a 6-digit code before you can search or launch. The lock re-arms whenever the window hides. Every space must use a different code.</p>
+          <div id="sec-disabled">
+            <label class="ql-field"><span>New password (6 digits)</span><input id="sec-pw1" type="password" inputmode="numeric" maxlength="6" pattern="\d*" class="ql-input" autocomplete="off" placeholder="••••••" /></label>
+            <label class="ql-field"><span>Confirm password</span><input id="sec-pw2" type="password" inputmode="numeric" maxlength="6" pattern="\d*" class="ql-input" autocomplete="off" /></label>
+            <div id="sec-msg" class="ql-status"></div>
+            <button id="sec-enable" class="ql-btn accent"><span class="msr">lock</span> Enable lock</button>
+          </div>
+          <div id="sec-enabled" style="display:none">
+            <div class="ql-sec-on"><span class="msr">verified_user</span> Password lock is <b>ON</b>.</div>
+            <label class="ql-field"><span>Current password</span><input id="sec-pwcur" type="password" inputmode="numeric" maxlength="6" pattern="\d*" class="ql-input" autocomplete="off" /></label>
+            <div id="sec-msg2" class="ql-status"></div>
+            <button id="sec-disable" class="ql-btn danger"><span class="msr">lock_open</span> Disable lock</button>
+
+            <hr class="ql-sec-divide" />
+            <div class="ql-sec-head"><span class="msr">key</span> Master password</div>
+            <p class="ql-note">A recovery password that can unlock the launcher (and disable the lock) if you forget your password. Set it once and keep it safe.</p>
+            <div class="ql-row">
+              <input id="sec-master" type="password" inputmode="numeric" maxlength="6" pattern="\d*" class="ql-input grow" placeholder="Master code (6 digits)" autocomplete="off" />
+              <button id="sec-master-save" class="ql-btn">Save</button>
+            </div>
+            <div id="sec-master-msg" class="ql-status"></div>
+
+            <hr class="ql-sec-divide" />
+            <div class="ql-sec-head"><span class="msr">group</span> Alternate spaces <small>(up to 10)</small></div>
+            <p class="ql-note">Each alternate password reveals its own separate set of shortcuts (stored in its own folder). Great for work/personal separation.</p>
+            <div id="prof-list" class="ql-prof-list"></div>
+            <div class="ql-row">
+              <input id="prof-name" class="ql-input grow" placeholder="Name (e.g. Work)" />
+              <input id="prof-pw" type="password" inputmode="numeric" maxlength="6" pattern="\d*" class="ql-input grow" placeholder="6-digit code" autocomplete="off" />
+              <button id="prof-add" class="ql-btn accent">Add</button>
+            </div>
+            <div id="prof-msg" class="ql-status"></div>
+            <p class="ql-note" style="margin-top:8px;opacity:.8"><span class="msr" style="font-size:14px;vertical-align:-2px">visibility_off</span> These spaces are hidden — they never show in any list. Just type a space's password on the lock screen to drop straight into it.</p>
+          </div>
+        </section>
+
+        <section class="ql-pane" data-pane="themes">
+          <p class="ql-note">Pick a theme — changes apply instantly.</p>
+          <div id="theme-grid" class="ql-theme-grid"></div>
+        </section>
+
+        <section class="ql-pane" data-pane="about">
+          <h3>PyDoc <span id="about-version" class="ql-ver">v1.0.0 Stable</span></h3>
+          <p class="ql-note">A Flow-Launcher-style quick launcher with a Windows&nbsp;11 look, Python logic,
+          system-tray background mode, global hotkeys, drag-and-drop, inline calculator &amp; web search,
+          usage ranking, groups, pins, aliases, per-item hotkeys, folder-content expansion and a
+          Google-Material icon system.</p>
+          <ul class="ql-note">
+            <li><b>One folder only:</b> shortcuts come from <code>Shortcuts/</code> + <code>shortcuts.json</code>.</li>
+            <li><b>Drop</b> a file/folder/link on the window to add it instantly.</li>
+            <li><b>Shortcut a folder</b> → its files show up in search too.</li>
+            <li><b>Ctrl+D</b> on a selected shortcut removes it.</li>
+          </ul>
+        </section>
+      </div>
+      <div class="ql-dialog-foot">
+        <span id="status" class="ql-status"></span>
+        <span class="grow"></span>
+        <button id="settings-cancel" class="ql-btn ghost">Close</button>
+        <button id="settings-save" class="ql-btn accent">Save &amp; Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirm" class="ql-confirm">
+    <div class="ql-confirm-box">
+      <div id="confirm-msg" class="ql-confirm-msg"></div>
+      <div class="ql-confirm-btns">
+        <button id="confirm-no" class="ql-btn ghost">Cancel</button>
+        <button id="confirm-yes" class="ql-btn danger">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
