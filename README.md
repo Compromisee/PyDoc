@@ -23,6 +23,8 @@
 
 [Features](#-features) · [Install](#-installation) · [Usage](#-usage) · [Icons](#-icon-system) · [Keybinds](#-keybinds) · [Build .exe](#-build-a-standalone-exe) · [Architecture](#-architecture)
 
+
+Bonus, check shortcuts.py in the dir for copying/creating ink files from the computer
 </div>
 
 ---
